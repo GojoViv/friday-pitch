@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Friday — Your AI Chief of Staff</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue: #3b82f6;
+      --blue-bright: #60a5fa;
+      --amber: #f59e0b;
+      --amber-bright: #fbbf24;
+      --bg: #020408;
+      --surface: #0a0f1a;
+      --border: rgba(255,255,255,0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .sora { font-family: 'Sora', sans-serif; }
+
+    /* --- NOISE OVERLAY --- */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* --- GRID BACKGROUND --- */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* --- GLOW EFFECTS --- */
+    .glow-blue { box-shadow: 0 0 80px rgba(59,130,246,0.15), 0 0 160px rgba(59,130,246,0.05); }
+    .glow-amber { box-shadow: 0 0 80px rgba(245,158,11,0.15), 0 0 160px rgba(245,158,11,0.05); }
+    .text-glow-blue { text-shadow: 0 0 40px rgba(96,165,250,0.5); }
+
+    /* --- GRADIENT TEXT --- */
+    .grad-blue { background: linear-gradient(135deg, #93c5fd, #3b82f6, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .grad-amber { background: linear-gradient(135deg, #fde68a, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .grad-white { background: linear-gradient(180deg, #ffffff 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .grad-hero { background: linear-gradient(135deg, #ffffff 0%, #93c5fd 40%, #60a5fa 70%, #f59e0b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* --- ORBS --- */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      animation: orbFloat 8s ease-in-out infinite;
+    }
+    .orb-1 { width: 600px; height: 600px; background: rgba(59,130,246,0.12); top: -200px; left: -100px; animation-delay: 0s; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(245,158,11,0.1); top: 100px; right: -100px; animation-delay: 3s; }
+    .orb-3 { width: 500px; height: 500px; background: rgba(99,102,241,0.08); bottom: -100px; left: 50%; animation-delay: 6s; }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+
+    /* --- WHATSAPP CHAT ANIMATION --- */
+    .chat-bubble {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: bubbleIn 0.5s ease forwards;
+    }
+    .chat-bubble:nth-child(1) { animation-delay: 0.2s; }
+    .chat-bubble:nth-child(2) { animation-delay: 1.0s; }
+    .chat-bubble:nth-child(3) { animation-delay: 2.0s; }
+    .chat-bubble:nth-child(4) { animation-delay: 3.2s; }
+    .chat-bubble:nth-child(5) { animation-delay: 4.5s; }
+
+    @keyframes bubbleIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- TYPING INDICATOR --- */
+    .typing-dots span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #60a5fa;
+      animation: typingDot 1.4s ease-in-out infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingDot {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* --- COUNTER ANIMATION --- */
+    .counter { display: inline-block; }
+
+    /* --- MARQUEE --- */
+    .marquee-track {
+      display: flex;
+      gap: 48px;
+      animation: marquee 30s linear infinite;
+      width: max-content;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* --- CAPABILITY CARDS --- */
+    .cap-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .cap-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(59,130,246,0.05) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .cap-card:hover::before { opacity: 1; }
+    .cap-card:hover {
+      border-color: rgba(59,130,246,0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 60px rgba(59,130,246,0.1);
+    }
+
+    /* --- CONNECTOR ICONS --- */
+    .connector-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #94a3b8;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .connector-pill:hover {
+      background: rgba(59,130,246,0.08);
+      border-color: rgba(59,130,246,0.3);
+      color: #e2e8f0;
+    }
+
+    /* --- TIMELINE STEPS --- */
+    .step-line {
+      position: absolute;
+      left: 23px;
+      top: 52px;
+      bottom: -20px;
+      width: 1px;
+      background: linear-gradient(to bottom, rgba(59,130,246,0.4), transparent);
+    }
+
+    /* --- HERO BADGE --- */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 13px;
+      color: #93c5fd;
+      font-weight: 500;
+      backdrop-filter: blur(8px);
+    }
+
+    /* --- SCROLL FADE IN --- */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* --- NAV --- */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 24px;
+      background: rgba(2,4,8,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* --- CTA BUTTON --- */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(59,130,246,0.4);
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: #94a3b8;
+      font-weight: 500;
+      font-size: 15px;
+      padding: 14px 24px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(255,255,255,0.25);
+      color: #e2e8f0;
+    }
+
+    /* --- STAT CARD --- */
+    .stat-card {
+      text-align: center;
+      padding: 32px 24px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+    }
+
+    /* --- TESTIMONIAL --- */
+    .testimonial {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 32px;
+      transition: all 0.3s;
+    }
+    .testimonial:hover {
+      border-color: rgba(59,130,246,0.2);
+      background: rgba(59,130,246,0.03);
+    }
+
+    /* --- COMPARISON TABLE --- */
+    .compare-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      align-items: center;
+      transition: background 0.2s;
+    }
+    .compare-row:hover { background: rgba(255,255,255,0.02); }
+
+    /* --- MOBILE --- */
+    @media (max-width: 768px) {
+      .orb-1 { width: 300px; height: 300px; }
+      .orb-2 { width: 200px; height: 200px; }
+      .compare-row { font-size: 13px; padding: 12px 16px; }
+    }
+
+    /* --- PULSE RING --- */
+    @keyframes pulseRing {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    .pulse-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 2px solid rgba(59,130,246,0.4);
+      animation: pulseRing 2s ease-out infinite;
+    }
+
+    /* --- BEAM LINE --- */
+    .beam {
+      position: absolute;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.6), transparent);
+      animation: beamSlide 3s ease-in-out infinite;
+    }
+    @keyframes beamSlide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+
+    /* shimmer */
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .shimmer-text {
+      background: linear-gradient(90deg, #94a3b8 25%, #ffffff 50%, #94a3b8 75%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 4s linear infinite;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:32px;height:32px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:18px;color:white;">Friday</span>
+      <span style="font-size:11px;color:#64748b;margin-left:4px;font-weight:500;">by Metastart</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <a href="#capabilities" class="btn-secondary" style="padding:8px 18px;font-size:14px;">Capabilities</a>
+      <a href="#contact" class="btn-primary" style="padding:8px 18px;font-size:14px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.121 1.533 5.85L0 24l6.335-1.652A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+        Get Early Access
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section style="position:relative;min-height:100vh;display:flex;align-items:center;padding:120px 24px 80px;overflow:hidden;" class="grid-bg">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div style="max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;" id="hero-grid">
+    <!-- LEFT -->
+    <div>
+      <div class="hero-badge" style="margin-bottom:32px;">
+        <div style="width:6px;height:6px;background:#3b82f6;border-radius:50%;animation:pulseRing 2s ease-out infinite;position:relative;">
+          <div style="position:absolute;inset:-4px;border:1px solid rgba(59,130,246,0.4);border-radius:50%;animation:pulseRing 2s ease-out infinite;"></div>
+        </div>
+        Powered by Anthropic Claude
+      </div>
+
+      <h1 style="font-size:clamp(42px,5vw,68px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:24px;">
+        <span class="grad-white">Your AI</span><br/>
+        <span class="grad-hero">Chief of Staff</span><br/>
+        <span class="grad-white">in WhatsApp</span>
+      </h1>
+
+      <p style="font-size:18px;color:#64748b;line-height:1.7;margin-bottom:40px;max-width:480px;">
+        Text what you need. It gets done. Email, invoices, deployments, research — Friday acts inside your real tools, remembers everything, and gets smarter every day.
+      </p>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px;">
+        <a href="#contact" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.121 1.533 5.85L0 24l6.335-1.652A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+          Start on WhatsApp
+        </a>
+        <a href="#demo" class="btn-secondary">Watch it work →</a>
+      </div>
+
+      <!-- SOCIAL PROOF STRIP -->
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="display:flex;">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#7c3aed);border:2px solid #020408;margin-right:-8px;"></div>
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);border:2px solid #020408;margin-right:-8px;"></div>
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#10b981,#3b82f6);border:2px solid #020408;margin-right:-8px;"></div>
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#f59e0b);border:2px solid #020408;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">+</div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#e2e8f0;">Trusted by founders across India</div>
+          <div style="font-size:12px;color:#64748b;">Early access — limited spots available</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: WHATSAPP DEMO -->
+    <div id="demo" style="position:relative;">
+      <div style="background:#0a0f1a;border:1px solid rgba(255,255,255,0.08);border-radius:24px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04);">
+        <!-- Phone header -->
+        <div style="background:#111827;padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="position:relative;">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:#10b981;border-radius:50%;border:2px solid #111827;"></div>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:14px;color:#f1f5f9;">Friday</div>
+            <div style="font-size:11px;color:#10b981;">● Online · Responds instantly</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#10b981;"></div>
+          </div>
+        </div>
+
+        <!-- Chat messages -->
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px;min-height:380px;background:linear-gradient(180deg,#0a0f1a 0%,#060b14 100%);">
+
+          <div class="chat-bubble" style="align-self:flex-end;max-width:75%;">
+            <div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white;padding:12px 16px;border-radius:18px 18px 4px 18px;font-size:14px;line-height:1.5;">
+              Send invoice to Arjun for ₹45,000 — web design project
+            </div>
+            <div style="font-size:10px;color:#475569;text-align:right;margin-top:4px;">Vivek · 2:14 PM ✓✓</div>
+          </div>
+
+          <div class="chat-bubble" style="align-self:flex-start;max-width:80%;">
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#e2e8f0;padding:12px 16px;border-radius:18px 18px 18px 4px;font-size:14px;line-height:1.6;">
+              Done ✅ Invoice #INV-0047 raised on Zoho Books for ₹45,000 and sent to arjun@company.in<br/><br/>
+              <span style="color:#94a3b8;font-size:12px;">Payment due: 15 days · GST included</span>
+            </div>
+            <div style="font-size:10px;color:#475569;margin-top:4px;">Friday · 2:14 PM</div>
+          </div>
+
+          <div class="chat-bubble" style="align-self:flex-end;max-width:75%;">
+            <div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white;padding:12px 16px;border-radius:18px 18px 4px 18px;font-size:14px;line-height:1.5;">
+              Now deploy the portfolio page I described earlier
+            </div>
+            <div style="font-size:10px;color:#475569;text-align:right;margin-top:4px;">Vivek · 2:15 PM ✓✓</div>
+          </div>
+
+          <div class="chat-bubble" style="align-self:flex-start;max-width:85%;">
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#e2e8f0;padding:12px 16px;border-radius:18px 18px 18px 4px;font-size:14px;line-height:1.6;">
+              🚀 Live at<br/>
+              <span style="color:#60a5fa;font-size:13px;">arjun-portfolio.vercel.app</span><br/>
+              <span style="color:#94a3b8;font-size:12px;">Deployed · GitHub repo created · Mobile-first</span>
+            </div>
+            <div style="font-size:10px;color:#475569;margin-top:4px;">Friday · 2:17 PM</div>
+          </div>
+
+          <div class="chat-bubble typing-dots" style="align-self:flex-start;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:14px 18px;border-radius:18px 18px 18px 4px;display:inline-flex;gap:4px;align-items:center;">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <!-- Bottom beam -->
+        <div style="height:2px;background:#0a0f1a;position:relative;overflow:hidden;">
+          <div class="beam" style="width:60%;top:0;left:0;"></div>
+        </div>
+      </div>
+
+      <!-- Floating badges -->
+      <div style="position:absolute;top:-20px;right:-20px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:10px 16px;font-size:12px;font-weight:600;color:#34d399;backdrop-filter:blur(8px);">
+        ⚡ 3 seconds · Invoice sent
+      </div>
+      <div style="position:absolute;bottom:20px;left:-20px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:10px 16px;font-size:12px;font-weight:600;color:#60a5fa;backdrop-filter:blur(8px);">
+        🚀 2 mins · Site deployed
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @media (max-width: 900px) {
+      #hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+    }
+  </style>
+</section>
+
+<!-- STATS BAR -->
+<section style="border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);padding:48px 24px;">
+  <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;" id="stats-grid">
+    <div class="stat-card fade-up">
+      <div style="font-size:40px;font-weight:800;font-family:'Sora',sans-serif;" class="grad-blue">∞</div>
+      <div style="font-size:14px;color:#64748b;margin-top:8px;font-weight:500;">Always On</div>
+    </div>
+    <div class="stat-card fade-up" style="transition-delay:0.1s">
+      <div style="font-size:40px;font-weight:800;font-family:'Sora',sans-serif;" class="grad-amber">12+</div>
+      <div style="font-size:14px;color:#64748b;margin-top:8px;font-weight:500;">Tool Integrations</div>
+    </div>
+    <div class="stat-card fade-up" style="transition-delay:0.2s">
+      <div style="font-size:40px;font-weight:800;font-family:'Sora',sans-serif;" class="grad-blue">&lt;5s</div>
+      <div style="font-size:14px;color:#64748b;margin-top:8px;font-weight:500;">Average Response</div>
+    </div>
+    <div class="stat-card fade-up" style="transition-delay:0.3s">
+      <div style="font-size:40px;font-weight:800;font-family:'Sora',sans-serif;" class="grad-amber">1</div>
+      <div style="font-size:14px;color:#64748b;margin-top:8px;font-weight:500;">WhatsApp. That's it.</div>
+    </div>
+  </div>
+  <style>@media(max-width:768px){#stats-grid{grid-template-columns:repeat(2,1fr)!important;}}</style>
+</section>
+
+<!-- CAPABILITIES -->
+<section id="capabilities" style="padding:100px 24px;position:relative;overflow:hidden;">
+  <div class="orb orb-3" style="opacity:0.5;"></div>
+  <div style="max-width:1200px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:72px;" class="fade-up">
+      <div class="hero-badge" style="margin-bottom:24px;display:inline-flex;">What Friday does</div>
+      <h2 style="font-size:clamp(32px,4vw,52px);font-weight:800;letter-spacing:-1.5px;margin-bottom:16px;" class="grad-white">
+        Not a chatbot.<br/>An operating system.
+      </h2>
+      <p style="font-size:17px;color:#64748b;max-width:560px;margin:0 auto;line-height:1.7;">
+        Friday takes actions inside real tools on your behalf. One message → real-world result.
+      </p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;" id="cap-grid">
+
+      <div class="cap-card fade-up">
+        <div style="width:44px;height:44px;background:rgba(59,130,246,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <h3 style="font-size:18px;font-weight:700;color:#f1f5f9;margin-bottom:10px;">Email</h3>
+        <p style="font-size:14px;color:#64748b;line-height:1.7;">Read, draft, send, search, and summarise Gmail threads. Reply to clients, flag important emails, manage your inbox — on command.</p>
+        <div style="margin-top:16px;font-size:12px;color:#3b82f6;font-weight:500;">Gmail · Google Workspace</div>
+      </div>
+
+      <div class="cap-card fade-up" style="transition-delay:0.1s">
+        <div style="width:44px;height:44px;background:rgba(245,158,11,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <h3 style="font-size:18px;font-weight:700;color:#f1f5f9;margin-bottom:10px;">Calendar & Scheduling</h3>
+        <p style="font-size:14px;color:#64748b;line-height:1.7;">Create events, check availability, reschedule meetings, set reminders. Friday manages your time so you don't have to.</p>
+        <div style="margin-top:16px;font-size:12px;color:#f59e0b;font-weight:500;">Google Calendar · Reminders</div>
+      </div>
+
+      <div class="cap-card fade-up" style="transition-delay:0.2s">
+        <div style="width:44px;height:44px;background:rgba(16,185,129,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <h3 style="font-size:18px;font-weight:700;color:#f1f5f9;margin-bottom:10px;">Invoicing & Finance</h3>
+        <p style="font-size:14px;color:#64748b;line-height:1.7;">Raise GST invoices, track payments, send payment reminders, pull financial reports — all through Zoho Books.</p>
+        <div style="margin-top:16px;font-size:12px;color:#10b981;font-weight:500;">Zoho Books · GST · INR</div>
+      </div>
+
+      <div class="cap-card fade-up" style="transition-delay:0.1s">
+        <div style="width:44px;height:44px;background:rgba(139,92,246,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3 style="font-size:18px;font-weight:700;color:#f1f5f9;margin-bottom:10px;">Build & Deploy</h3>
+        <p style="font-size:14px;color:#64748b;line-height:1.7;">Describe what you want. Friday writes the code, creates a GitHub repo, and ships a live URL — in minutes. No developer needed.</p>
+        <div style="margin-top:16px;font-size:12px;color:#8b5cf6;font-weight:500;">GitHub · Vercel · Full-stack</div>
+      </div>
+
+      <div class="cap-card fade-up" style="transition-delay:0.2s">
+        <div style="width:44px;height:44px;background:rgba(239,68,68,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3 style="font-size:18px;font-weight:700;color:#f1f5f9;margin-bottom:10px;">Research & OSINT</h3>
+        <p style="font-size:14px;color:#64748b;line-height:1.7;">Live web search, competitor analysis, market research, news monitoring. Deep dives delivered as sharp briefs.</p>
+        <div style="margin-top:16px;font-size:12px;color:#ef4444;font-weight:500;">Web · RSS · Real-time</div>
+      </div>
+
+      <div class="cap-card fade-up" style="transition-delay:0.3s">
+        <div style="width:44px;height:44px;background:rgba(59,130,246,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/><path d="M18.5 2.5 22 6l-7 1z"/></svg>
+        </div>
+        <h3 style="font-size:18px;font-weight:700;color:#f1f5f9;margin-bottom:10px;">Persistent Memory</h3>
+        <p style="font-size:14px;color:#64748b;line-height:1.7;">Friday builds a model of you over time — your preferences, clients, projects, working style. Every session it knows more.</p>
+        <div style="margin-top:16px;font-size:12px;color:#3b82f6;font-weight:500;">Cross-session · Learns over time</div>
+      </div>
+
+    </div>
+
+    <style>@media(max-width:768px){#cap-grid{grid-template-columns:1fr!important;}}</style>
+  </div>
+</section>
+
+<!-- INTEGRATIONS MARQUEE -->
+<section style="padding:60px 0;border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04);overflow:hidden;">
+  <div style="text-align:center;margin-bottom:40px;font-size:13px;color:#475569;font-weight:500;letter-spacing:1px;text-transform:uppercase;">Connected to your entire stack</div>
+  <div style="overflow:hidden;mask:linear-gradient(90deg,transparent,black 15%,black 85%,transparent);">
+    <div class="marquee-track">
+      <div class="connector-pill">📧 Gmail</div>
+      <div class="connector-pill">📅 Google Calendar</div>
+      <div class="connector-pill">📁 Google Drive</div>
+      <div class="connector-pill">📊 Google Sheets</div>
+      <div class="connector-pill">📝 Google Docs</div>
+      <div class="connector-pill">🧾 Zoho Books</div>
+      <div class="connector-pill">📋 Notion</div>
+      <div class="connector-pill">🎙 Fireflies</div>
+      <div class="connector-pill">💻 GitHub</div>
+      <div class="connector-pill">🚀 Vercel</div>
+      <div class="connector-pill">💬 WhatsApp</div>
+      <div class="connector-pill">✈️ Telegram</div>
+      <div class="connector-pill">📧 Gmail</div>
+      <div class="connector-pill">📅 Google Calendar</div>
+      <div class="connector-pill">📁 Google Drive</div>
+      <div class="connector-pill">📊 Google Sheets</div>
+      <div class="connector-pill">📝 Google Docs</div>
+      <div class="connector-pill">🧾 Zoho Books</div>
+      <div class="connector-pill">📋 Notion</div>
+      <div class="connector-pill">🎙 Fireflies</div>
+      <div class="connector-pill">💻 GitHub</div>
+      <div class="connector-pill">🚀 Vercel</div>
+      <div class="connector-pill">💬 WhatsApp</div>
+      <div class="connector-pill">✈️ Telegram</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section style="padding:100px 24px;">
+  <div style="max-width:800px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:72px;" class="fade-up">
+      <div class="hero-badge" style="margin-bottom:24px;display:inline-flex;">How it works</div>
+      <h2 style="font-size:clamp(32px,4vw,48px);font-weight:800;letter-spacing:-1.5px;" class="grad-white">
+        One message.<br/>Real action.
+      </h2>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:0;">
+
+      <div style="display:flex;gap:24px;position:relative;padding-bottom:40px;" class="fade-up">
+        <div style="position:relative;flex-shrink:0;">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:white;font-family:'Sora',sans-serif;">1</div>
+          <div class="step-line"></div>
+        </div>
+        <div style="padding-top:10px;">
+          <h3 style="font-size:20px;font-weight:700;color:#f1f5f9;margin-bottom:8px;">You text Friday on WhatsApp</h3>
+          <p style="font-size:15px;color:#64748b;line-height:1.7;">Natural language. No commands, no formatting. Just say what you need like you're texting a capable person.</p>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:24px;position:relative;padding-bottom:40px;" class="fade-up">
+        <div style="position:relative;flex-shrink:0;">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:white;font-family:'Sora',sans-serif;">2</div>
+          <div class="step-line"></div>
+        </div>
+        <div style="padding-top:10px;">
+          <h3 style="font-size:20px;font-weight:700;color:#f1f5f9;margin-bottom:8px;">Friday understands and plans</h3>
+          <p style="font-size:15px;color:#64748b;line-height:1.7;">With full context from your memory, past conversations, and connected tools — Friday works out exactly what to do.</p>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:24px;position:relative;padding-bottom:40px;" class="fade-up">
+        <div style="position:relative;flex-shrink:0;">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:white;font-family:'Sora',sans-serif;">3</div>
+          <div class="step-line"></div>
+        </div>
+        <div style="padding-top:10px;">
+          <h3 style="font-size:20px;font-weight:700;color:#f1f5f9;margin-bottom:8px;">It acts inside your real tools</h3>
+          <p style="font-size:15px;color:#64748b;line-height:1.7;">Sends the email. Raises the invoice. Deploys the site. Creates the task. Real actions in real systems — not just a draft you still have to send.</p>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:24px;" class="fade-up">
+        <div style="flex-shrink:0;">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:white;font-family:'Sora',sans-serif;">4</div>
+        </div>
+        <div style="padding-top:10px;">
+          <h3 style="font-size:20px;font-weight:700;color:#f1f5f9;margin-bottom:8px;">Confirms back, and remembers</h3>
+          <p style="font-size:15px;color:#64748b;line-height:1.7;">You get a clean confirmation. And Friday logs what it learned — next time it's even faster. Each interaction makes it sharper.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- VS COMPARISON -->
+<section style="padding:80px 24px;background:rgba(255,255,255,0.01);border-top:1px solid rgba(255,255,255,0.04);">
+  <div style="max-width:900px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:60px;" class="fade-up">
+      <h2 style="font-size:clamp(28px,3.5vw,44px);font-weight:800;letter-spacing:-1.5px;" class="grad-white">
+        Why not just use ChatGPT?
+      </h2>
+      <p style="font-size:16px;color:#64748b;margin-top:16px;">ChatGPT answers questions. Friday gets things done.</p>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;" class="fade-up">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;padding:16px 24px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div style="font-size:13px;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">Feature</div>
+        <div style="font-size:13px;color:#3b82f6;font-weight:700;text-align:center;">Friday</div>
+        <div style="font-size:13px;color:#64748b;font-weight:500;text-align:center;">ChatGPT / Others</div>
+      </div>
+
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Lives in WhatsApp</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Acts inside Gmail, Zoho, Calendar</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Persistent memory across sessions</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Raises GST invoices</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Builds & deploys websites</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Indian business context (INR, GST, IST)</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row" style="border-bottom:none;"><div style="color:#e2e8f0;font-size:14px;">Zero setup — just WhatsApp</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#64748b;font-size:14px;">Kinda</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section style="padding:100px 24px;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:60px;" class="fade-up">
+      <h2 style="font-size:clamp(28px,3.5vw,44px);font-weight:800;letter-spacing:-1.5px;" class="grad-white">
+        Founders using Friday
+      </h2>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;" id="testi-grid">
+      <div class="testimonial fade-up">
+        <div style="display:flex;gap:4px;margin-bottom:16px;">★★★★★</div>
+        <p style="font-size:15px;color:#94a3b8;line-height:1.8;margin-bottom:20px;">"I texted Friday to send invoices to three clients and follow up on one that was overdue. It was done before I finished my coffee. I don't know how I ran a business before this."</p>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#7c3aed);"></div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#e2e8f0;">Priya Nair</div>
+            <div style="font-size:12px;color:#64748b;">Founder, DesignCo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial fade-up" style="transition-delay:0.1s">
+        <div style="display:flex;gap:4px;margin-bottom:16px;">★★★★★</div>
+        <p style="font-size:15px;color:#94a3b8;line-height:1.8;margin-bottom:20px;">"Friday built and deployed a landing page for a client pitch in 8 minutes. The client thought we had a whole design team. We don't. Just Friday."</p>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);"></div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#e2e8f0;">Arjun Mehta</div>
+            <div style="font-size:12px;color:#64748b;">Solo Consultant</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial fade-up" style="transition-delay:0.2s">
+        <div style="display:flex;gap:4px;margin-bottom:16px;">★★★★★</div>
+        <p style="font-size:15px;color:#94a3b8;line-height:1.8;margin-bottom:20px;">"It remembers who my clients are, what we discussed last time, their payment terms. It's like having a chief of staff who actually read all your emails."</p>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#3b82f6);"></div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#e2e8f0;">Rahul Sharma</div>
+            <div style="font-size:12px;color:#64748b;">Founder, Growbrand</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <style>@media(max-width:768px){#testi-grid{grid-template-columns:1fr!important;}}</style>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section id="contact" style="padding:100px 24px;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(59,130,246,0.08),transparent);pointer-events:none;"></div>
+  <div style="max-width:700px;margin:0 auto;text-align:center;" class="fade-up">
+    <div class="hero-badge" style="margin-bottom:32px;display:inline-flex;">Early access · Limited spots</div>
+    <h2 style="font-size:clamp(36px,5vw,64px);font-weight:800;letter-spacing:-2px;margin-bottom:20px;line-height:1.05;">
+      <span class="grad-white">Empowering the</span><br/>
+      <span class="grad-hero">one-person companies</span><br/>
+      <span class="grad-white">of tomorrow</span>
+    </h2>
+    <p style="font-size:18px;color:#64748b;margin-bottom:48px;line-height:1.7;">
+      Text what you need. It gets done. No new apps, no learning curve — just WhatsApp and a Friday that knows your business.
+    </p>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+      <a href="https://wa.me/917506075747" class="btn-primary" style="font-size:17px;padding:18px 36px;border-radius:14px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.121 1.533 5.85L0 24l6.335-1.652A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+        Get Early Access on WhatsApp
+      </a>
+      <p style="font-size:13px;color:#475569;">Built by <span style="color:#64748b;font-weight:600;">Metastart</span> · India-first · Powered by Claude</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="border-top:1px solid rgba(255,255,255,0.05);padding:40px 24px;text-align:center;">
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
+    <div style="width:24px;height:24px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:#64748b;">Friday</span>
+  </div>
+  <p style="font-size:13px;color:#334155;">© 2026 Metastart SVY LLP · Empowering the one-person companies of tomorrow</p>
+</footer>
+
+<!-- JS: SCROLL ANIMATIONS + INTERSECTION OBSERVER -->
+<script>
+  // Scroll fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Parallax on hero orbs
+  document.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 30;
+    const y = (e.clientY / window.innerHeight - 0.5) * 30;
+    document.querySelectorAll('.orb').forEach((orb, i) => {
+      const factor = (i + 1) * 0.4;
+      orb.style.transform = `translate(${x * factor}px, ${y * factor}px)`;
+    });
+  });
+</script>
+
+</body>
+</html>
