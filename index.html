@@ -299,6 +299,44 @@
       .orb-1 { width: 300px; height: 300px; }
       .orb-2 { width: 200px; height: 200px; }
       .compare-row { font-size: 13px; padding: 12px 16px; }
+      .cap-card { padding: 20px; }
+      .testimonial { padding: 20px; }
+    }
+
+    @media (max-width: 640px) {
+      /* Orbs */
+      .orb-1 { width: 200px !important; height: 200px !important; }
+      .orb-2 { width: 150px !important; height: 150px !important; }
+
+      /* Nav */
+      .nav-caps { display: none !important; }
+      .nav-cta .nav-cta-text { display: none; }
+      .nav-cta { padding: 8px 12px !important; gap: 0 !important; }
+
+      /* Hero */
+      section.hero-section { padding: 90px 20px 60px !important; }
+      #hero-desc { font-size: 16px !important; }
+
+      /* Float badges */
+      .float-badge { display: none !important; }
+
+      /* Section padding */
+      #capabilities { padding: 60px 20px !important; }
+      #section-how { padding: 60px 20px !important; }
+      #section-vs { padding: 60px 20px !important; }
+      #section-testi { padding: 60px 20px !important; }
+      #contact { padding: 60px 20px !important; }
+
+      /* Capability cards */
+      .cap-card { padding: 20px !important; }
+
+      /* Testimonials */
+      .testimonial { padding: 20px !important; }
+
+      /* Comparison table — hide ChatGPT column, collapse to 2-col */
+      #compare-table .compare-chatgpt { display: none !important; }
+      #compare-table .compare-row { grid-template-columns: 2fr 1fr !important; }
+      #compare-table > div:first-child { grid-template-columns: 2fr 1fr !important; display: grid !important; }
     }
 
     /* --- PULSE RING --- */
@@ -354,17 +392,17 @@
       <span style="font-size:11px;color:#64748b;margin-left:4px;font-weight:500;">by Metastart</span>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
-      <a href="#capabilities" class="btn-secondary" style="padding:8px 18px;font-size:14px;">Capabilities</a>
-      <a href="#contact" class="btn-primary" style="padding:8px 18px;font-size:14px;">
+      <a href="#capabilities" class="btn-secondary nav-caps" style="padding:8px 18px;font-size:14px;">Capabilities</a>
+      <a href="#contact" class="btn-primary nav-cta" style="padding:8px 18px;font-size:14px;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.121 1.533 5.85L0 24l6.335-1.652A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
-        Get Early Access
+        <span class="nav-cta-text">Get Early Access</span>
       </a>
     </div>
   </div>
 </nav>
 
 <!-- HERO -->
-<section style="position:relative;min-height:100vh;display:flex;align-items:center;padding:120px 24px 80px;overflow:hidden;" class="grid-bg">
+<section style="position:relative;min-height:100vh;display:flex;align-items:center;padding:120px 24px 80px;overflow:hidden;" class="grid-bg hero-section">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
 
@@ -378,13 +416,13 @@
         Now in Early Access
       </div>
 
-      <h1 style="font-size:clamp(42px,5vw,68px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:24px;">
+      <h1 style="font-size:clamp(36px,5vw,68px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:24px;">
         <span class="grad-white">Your AI</span><br/>
         <span class="grad-hero">Chief of Staff</span><br/>
         <span class="grad-white">in WhatsApp</span>
       </h1>
 
-      <p style="font-size:18px;color:#64748b;line-height:1.7;margin-bottom:40px;max-width:480px;">
+      <p id="hero-desc" style="font-size:18px;color:#64748b;line-height:1.7;margin-bottom:40px;max-width:480px;">
         Text what you need. It gets done. Email, invoices, deployments, research — Friday acts inside your real tools, remembers everything, and gets smarter every day.
       </p>
 
@@ -479,10 +517,10 @@
       </div>
 
       <!-- Floating badges -->
-      <div style="position:absolute;top:-20px;right:-20px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:10px 16px;font-size:12px;font-weight:600;color:#34d399;backdrop-filter:blur(8px);">
+      <div class="float-badge" style="position:absolute;top:-20px;right:-20px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:10px 16px;font-size:12px;font-weight:600;color:#34d399;backdrop-filter:blur(8px);">
         ⚡ 3 seconds · Invoice sent
       </div>
-      <div style="position:absolute;bottom:20px;left:-20px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:10px 16px;font-size:12px;font-weight:600;color:#60a5fa;backdrop-filter:blur(8px);">
+      <div class="float-badge" style="position:absolute;bottom:20px;left:-20px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:10px 16px;font-size:12px;font-weight:600;color:#60a5fa;backdrop-filter:blur(8px);">
         🚀 2 mins · Site deployed
       </div>
     </div>
@@ -628,7 +666,7 @@
 </section>
 
 <!-- HOW IT WORKS -->
-<section style="padding:100px 24px;">
+<section id="section-how" style="padding:100px 24px;">
   <div style="max-width:800px;margin:0 auto;">
     <div style="text-align:center;margin-bottom:72px;" class="fade-up">
       <div class="hero-badge" style="margin-bottom:24px;display:inline-flex;">How it works</div>
@@ -687,7 +725,7 @@
 </section>
 
 <!-- VS COMPARISON -->
-<section style="padding:80px 24px;background:rgba(255,255,255,0.01);border-top:1px solid rgba(255,255,255,0.04);">
+<section id="section-vs" style="padding:80px 24px;background:rgba(255,255,255,0.01);border-top:1px solid rgba(255,255,255,0.04);">
   <div style="max-width:900px;margin:0 auto;">
     <div style="text-align:center;margin-bottom:60px;" class="fade-up">
       <h2 style="font-size:clamp(28px,3.5vw,44px);font-weight:800;letter-spacing:-1.5px;" class="grad-white">
@@ -696,26 +734,26 @@
       <p style="font-size:16px;color:#64748b;margin-top:16px;">ChatGPT answers questions. Friday gets things done.</p>
     </div>
 
-    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;" class="fade-up">
+    <div id="compare-table" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;" class="fade-up">
       <div style="display:grid;grid-template-columns:2fr 1fr 1fr;padding:16px 24px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);">
         <div style="font-size:13px;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">Feature</div>
         <div style="font-size:13px;color:#3b82f6;font-weight:700;text-align:center;">Friday</div>
-        <div style="font-size:13px;color:#64748b;font-weight:500;text-align:center;">ChatGPT / Others</div>
+        <div class="compare-chatgpt" style="font-size:13px;color:#64748b;font-weight:500;text-align:center;">ChatGPT / Others</div>
       </div>
 
-      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Lives in WhatsApp</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
-      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Acts inside Gmail, Zoho, Calendar</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
-      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Persistent memory across sessions</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
-      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Raises invoices</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
-      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Builds & deploys websites</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
-      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">US business context (USD, Sales Tax, EST)</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
-      <div class="compare-row" style="border-bottom:none;"><div style="color:#e2e8f0;font-size:14px;">Zero setup — just WhatsApp</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div style="text-align:center;color:#64748b;font-size:14px;">Kinda</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Lives in WhatsApp</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div class="compare-chatgpt" style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Acts inside Gmail, Zoho, Calendar</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div class="compare-chatgpt" style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Persistent memory across sessions</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div class="compare-chatgpt" style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Raises invoices</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div class="compare-chatgpt" style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">Builds & deploys websites</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div class="compare-chatgpt" style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row"><div style="color:#e2e8f0;font-size:14px;">US business context (USD, Sales Tax, EST)</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div class="compare-chatgpt" style="text-align:center;color:#ef4444;font-size:18px;">✗</div></div>
+      <div class="compare-row" style="border-bottom:none;"><div style="color:#e2e8f0;font-size:14px;">Zero setup — just WhatsApp</div><div style="text-align:center;color:#10b981;font-size:18px;">✓</div><div class="compare-chatgpt" style="text-align:center;color:#64748b;font-size:14px;">Kinda</div></div>
     </div>
   </div>
 </section>
 
 <!-- TESTIMONIALS -->
-<section style="padding:100px 24px;">
+<section id="section-testi" style="padding:100px 24px;">
   <div style="max-width:1100px;margin:0 auto;">
     <div style="text-align:center;margin-bottom:60px;" class="fade-up">
       <h2 style="font-size:clamp(28px,3.5vw,44px);font-weight:800;letter-spacing:-1.5px;" class="grad-white">
@@ -769,7 +807,7 @@
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(59,130,246,0.08),transparent);pointer-events:none;"></div>
   <div style="max-width:700px;margin:0 auto;text-align:center;" class="fade-up">
     <div class="hero-badge" style="margin-bottom:32px;display:inline-flex;">Early access · Limited spots</div>
-    <h2 style="font-size:clamp(36px,5vw,64px);font-weight:800;letter-spacing:-2px;margin-bottom:20px;line-height:1.05;">
+    <h2 style="font-size:clamp(28px,5vw,64px);font-weight:800;letter-spacing:-2px;margin-bottom:20px;line-height:1.05;">
       <span class="grad-white">Empowering the</span><br/>
       <span class="grad-hero">one-person companies</span><br/>
       <span class="grad-white">of tomorrow</span>
